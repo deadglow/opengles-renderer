@@ -1,0 +1,1 @@
+g++ -std=c++17 src\*.cpp -Iinclude -Llib -Wall -lmingw32 -lSDL2main -lSDL2 -lEGL -lGLESv2 -o bin\renderer

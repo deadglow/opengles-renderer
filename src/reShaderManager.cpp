@@ -7,6 +7,9 @@
 #include "gles2.h"
 #include "SDL/SDL.h"
 
+const char* DEFAULT_VS = "default";
+const char* DEFAULT_FS = "default";
+
 using namespace reGraphics;
 //#define LOG_INVALID_UNIFORM
 
@@ -16,6 +19,11 @@ reShaderProgram::reShaderProgram(GLuint program, const char* name, const char* v
 	, vertShader(vertShader)
 	, fragShader(fragShader)
 {
+}
+
+reShaderManager::reShaderManager()
+{
+	LoadShaderProgramFromFiles("default", DEFAULT_VS, DEFAULT_FS);
 }
 
 bool reShaderManager::IsShaderLoaded(const char* name) const
@@ -53,10 +61,8 @@ const reShaderProgram& reShaderManager::LoadShaderProgramFromFiles(const char* n
 {
 	SDL_assert(!IsShaderLoaded(name));
 
-	reShaderProgram newProgram = LoadShaderProgramFromFilesNoEmplace(name, vertShaderFilename, fragShaderFilename);
-
 	std::string nameStr(name);
-	m_shadermap.emplace(nameStr, newProgram);
+	m_shadermap.emplace(nameStr, LoadShaderProgramFromFilesNoEmplace(name, vertShaderFilename, fragShaderFilename));
 	
 	return m_shadermap[nameStr];
 }
@@ -198,27 +204,18 @@ GLuint reShaderManager::LoadShaderFromFile(const char* filename, GLint glShaderT
 	SDL_assert(std::filesystem::is_regular_file(path));
 
 	std::ifstream f(path);
+	SDL_assert(f);
+
+	std::ostringstream ss;
+	ss << f.rdbuf();
+
 	std::string source;
-
-	if (f)
-	{
-		std::ostringstream ss;
-		ss << f.rdbuf();
-		source = ss.str();
-	}
-	else
-	{
-		// file read error
-		SDL_assert(false);
-	}
-
+	source = ss.str();
 	SDL_assert(source.size());
-
-	GLuint shader = LoadShaderFromSource(source.c_str(), glShaderType);
 
 	f.close();
 
-	return shader;
+	return LoadShaderFromSource(source.c_str(), glShaderType);
 }
 
 reShaderProgram reShaderManager::ConstructShaderProgram(GLuint vertShader, GLuint fragShader, const char* name, const char* vertShaderName, const char* fragShaderName)

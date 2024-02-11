@@ -7,6 +7,8 @@ namespace reGraphics
 {
 	class reShaderManager;
 	class reModelManager;
+	class reMaterialManager;
+	class reRenderer;
 }
 
 class reTime;
@@ -25,6 +27,8 @@ public:
 
 	static reGraphics::reShaderManager* GetShaderManager();
 	static reGraphics::reModelManager* GetModelManager();
+	static reGraphics::reMaterialManager* GetMaterialManager();
+	static reGraphics::reRenderer* GetRenderer();
 	static reTime* GetTime();
 	static reInput* GetInput();
 

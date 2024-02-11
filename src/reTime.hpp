@@ -16,7 +16,7 @@ struct reTime
 
 	reTime(uint64_t now_init, double tickrate_init) : now(now_init), tickrate(tickrate_init) {}
 
-	void DTUpdate()
+	void UpdateDT()
 	{
 		last = now;
 		now = SDL_GetPerformanceCounter();
@@ -26,7 +26,7 @@ struct reTime
 		time = (double)SDL_GetTicks64() * 1000.0;
 	}
 
-	void IncrementSimTime()
+	void Tick()
 	{
 		accumulator -= tickrate;
 		simTime += tickrate;

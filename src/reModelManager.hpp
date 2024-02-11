@@ -2,13 +2,16 @@
 
 #include <vector>
 #include <unordered_map>
-#include <string>
 
+#include "reGuid.hpp"
 #include "reModel.hpp"
 #include "rePrimitiveFactory.hpp"
 
 template <typename K, typename V>
 using umap = std::unordered_map<K, V>;
+
+// loads primitives by default named:
+//	"default_quad"
 
 namespace reGraphics
 {
@@ -18,24 +21,27 @@ namespace reGraphics
 		reModelManager();
 		~reModelManager();
 
+		const reModel* GetModel(const reGuid<reModel> guid) const;
+		const reGuid<reModel>* GetModelIDByName(const char* name) const;
+
 		void UnloadAllModels();
 
-		reModel* CreateModel(const std::string& name);
+		reModel& CreateEmptyModel(const char* name);
 
-		const reModel* LoadModel(const std::string& filename);
-		void UnloadModel(const std::string& name);
+		const reModel& LoadModel(const char* filename);
+		void UnloadModel(const reGuid<reModel> guid);
 
-		const reModel* LoadNewPrimitive(const std::string& name, rePrimitives::PrimitiveType primitiveType);
+		const reModel& LoadNewPrimitive(const char* name, const rePrimitives::PrimitiveType primitiveType);
 
-		const reModel* GetModel(const std::string& name) const;
-
-		bool IsModelLoaded(const std::string& name) const;
+		bool IsModelLoaded(const reGuid<reModel> guid) const;
+		bool IsModelLoaded(const char* name) const;
 
 		// GPU stuff
-		void GPULoad(const std::string& name);
-		void GPUUnload(const std::string& name);
+		void GPULoad(const reGuid<reModel> guid);
+		void GPUUnload(const reGuid<reModel> guid);
 
 	private:
-		umap<std::string, reModel> m_models;
+		umap<reGuid<reModel>, reModel> m_models;
+		umap<std::string, reGuid<reModel>> m_guidLookup;
 	};
 }

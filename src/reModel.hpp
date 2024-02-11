@@ -1,5 +1,7 @@
 #pragma once
+
 #include "math_3d.h"
+#include "reGuid.hpp"
 #include <vector>
 #include <string>
 
@@ -14,6 +16,8 @@ namespace reGraphics
 	{
 		vec3_t position;
 		vec3_t normal;
+		vec3_t tangent;
+		vec2_t texCoord;
 	};
 
 	struct reTri
@@ -32,14 +36,29 @@ namespace reGraphics
 	class reModel
 	{
 	public:
-
 		reModel() = default;
-		reModel(const std::string& name);
-		std::string m_name;
-		std::vector<reMesh> m_meshes;
-		std::vector<reMaterial*> m_materials;
+		reModel(const reGuid<reModel> guid, const char* name)
+			: m_guid(guid)
+			, m_name(name)
+		{}
 
-		float m_unitScale = 1.0f;
+		reGuid<reModel> m_guid;
+		std::string m_name;
+
+		std::vector<reMesh> m_meshes;
+		std::vector<reGuid<reMaterial>> m_materials;
+
 		bool m_loadedOnGpu = false;
+	};
+
+	class reModelInst
+	{
+	public:
+		reModelInst(const reGuid<reModel> model)
+			: m_baseModel(model)
+		{}
+
+		reGuid<reModel> m_baseModel;
+		std::vector<reGuid<reMaterial>> m_materialOverrides;
 	};
 }

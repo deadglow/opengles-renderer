@@ -2,58 +2,31 @@
 
 #include <vector>
 #include <string>
-#include "math_3d.h"
+#include "reGuid.hpp"
+#include "reUniform.hpp"
 
 namespace reGraphics
 {
 	class reShaderManager;
 
-	enum class reUniformType : char
-	{
-		Invalid,
-		Bool,
-		Int,
-		Float,
-		Vec2,
-		Vec3,
-		Vec4,
-	};
-
-	struct reUniformValue {
-		reUniformValue() = default;
-		reUniformValue(const bool& val);
-		reUniformValue(const int& val);
-		reUniformValue(const float& val);
-		reUniformValue(const vec2_t& val);
-		reUniformValue(const vec3_t& val);
-		reUniformValue(const vec4_t& val);
-
-		reUniformType type;
-		union {
-			float v_float[4];
-			int v_int[4];
-		};
-	};
-
-	struct reUniformSet {
-		std::string name;
-		reUniformValue value;
-	};
-
 	class reMaterial
 	{
 	public:
-		reMaterial(const char* shaderName);
+		reMaterial() = default;
+		reMaterial(const reGuid<reMaterial> guid, const char* shaderName)
+			: m_guid(guid)
+			, m_shaderName(shaderName)
+		{}
 
-		void UseMaterial();
+		void AddUniform(const char* name, const reUniformValue& value);
 
-		void AddUniform(const std::string& name, const reUniformValue& value);
+		void UseMaterial() const;
+		void ApplyUniform(const char* uniformName, const reUniformValue& uniformValue) const;
 
-	private:
-		void ApplyUniform(const char* uniformName, const reUniformValue& uniformValue);
-
-	private:
+		reGuid<reMaterial> m_guid;
 		std::string m_shaderName;
-		std::vector<reUniformSet> m_shaderUniforms;
+
+		std::string m_name;
+		std::vector<reUniform> m_shaderUniforms;
 	};
 };

@@ -34,6 +34,9 @@ namespace reGraphics
 	class reShaderManager
 	{
 	public:
+		reShaderManager();
+		~reShaderManager() = default;
+		
 		bool IsShaderLoaded(const char* name) const;
 
 		const reShaderProgram& GetShader(const char* name) const;

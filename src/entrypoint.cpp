@@ -16,14 +16,13 @@
 #define MATH_3D_IMPLEMENTATION
 #include "math_3d.h"
 
+using namespace reGraphics;
+
 static bool RUNNING;
 static double TICKRATE = 1.0 / 50.0;
 
 
 const float FOV = 70;
-
-const char* DEFAULT_VS = "shader";
-const char* DEFAULT_FS = "shader";
 
 reCamera s_camera(FOV, 0.0001f, 1000.0f);
 
@@ -71,7 +70,7 @@ static void Update()
 {
 }
 
-void DoInputStuff()
+void TempInputStuff()
 {
 	reInput* input = reEngine::GetInput();
 	reTime* time = reEngine::GetTime();
@@ -103,8 +102,14 @@ void DoInputStuff()
 
 static void Render(SDL_Window* window)
 {
-	DoInputStuff();
-	reGraphics::DoRenderStuff(window, s_camera);
+	TempInputStuff();
+	auto* renderer = reEngine::GetRenderer();
+	renderer->m_camera = &s_camera;
+
+	auto* modelManager = reEngine::GetModelManager();
+	auto modelGuid = *modelManager->GetModelIDByName("default_quad");
+	renderer->AddModelToRender(reModelInst(modelGuid), m4_identity());
+	renderer->Render();
 }
 
 SDL_Window* SetupSDL(int& result)
@@ -155,13 +160,16 @@ SDL_Window* SetupSDL(int& result)
 
 int main(int argc, char* argv[])
 {
-	int result; auto window = SetupSDL(result);
+	// init SDL
+	int result; SDL_Window* window = SetupSDL(result);
 	if (result != 0)
 	{
 		return result;
 	}
 
+	// set up engine components
 	reEngine::Impl* engineInstance = new reEngine::Impl(
+		reRenderer(window),
 		reTime(SDL_GetPerformanceCounter(), TICKRATE)
 	);
 	reEngine::SetInstance(engineInstance);
@@ -169,26 +177,18 @@ int main(int argc, char* argv[])
 	// reset input
 	reEngine::GetInput()->Reset();
 
-	reGraphics::reShaderManager* shaderMananager = reEngine::GetShaderManager();
-	const reGraphics::reShaderProgram& shader = shaderMananager->LoadShaderProgramFromFiles("program", DEFAULT_VS, DEFAULT_FS);
-	shaderMananager->UseShader(shader);
-
-    // Specify the layout of the vertex data
-    GLint posAttrib = glGetAttribLocation(shader.program, "a_position");
-    glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
+	// game loop
 	RUNNING = true;
 	while (RUNNING)
 	{
 		reTime* time = reEngine::GetTime();
-		time->DTUpdate();
+		time->UpdateDT();
 
 		ProcessInput();
 		while (time->accumulator > time->deltaTime)
 		{
 			Update();
-			time->IncrementSimTime();
+			time->Tick();
 		}
 		
 		Render(window);

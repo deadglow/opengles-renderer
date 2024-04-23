@@ -2,6 +2,8 @@
 #include "SDL/SDL.h"
 #include "gles2.h"
 
+#include "reModelLoader.hpp"
+
 using namespace reGraphics;
 
 reModelManager::reModelManager()
@@ -47,8 +49,8 @@ const reModel& reModelManager::LoadModel(const char* filename)
 	SDL_assert(!IsModelLoaded(filename));
 
 	reModel& model = CreateEmptyModel(filename);
-
-	// use gltf loader here
+	bool success = reModelLoader::LoadFromFile(filename, model);
+	SDL_assert(success);
 
 	return model;
 }
@@ -100,11 +102,51 @@ bool reGraphics::reModelManager::IsModelLoaded(const char* name) const
 	return m_guidLookup.find(name) != m_guidLookup.end();
 }
 
+void LoadRequiredBuffers(reMesh& mesh)
+{
+	// REQUIRED BUFFERS
+	glGenBuffers(reMesh::REQUIRED_BUFFERS, &mesh.m_VBOs[0]);
+
+	// position
+	auto& bufferPos = mesh.m_vertexBuffers.position;
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.m_VBOs[reVertexAttribs::POSITION]);
+	glBufferData(GL_ARRAY_BUFFER, bufferPos.size() * sizeof(vec3_t), &bufferPos[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(reVertexAttribs::POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(reVertexAttribs::POSITION);
+
+	// normal
+	auto& bufferNormal = mesh.m_vertexBuffers.normal;
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.m_VBOs[reVertexAttribs::NORMAL]);
+	glBufferData(GL_ARRAY_BUFFER, bufferNormal.size() * sizeof(vec3_t), &bufferNormal[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(reVertexAttribs::NORMAL, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(reVertexAttribs::NORMAL);
+
+	// tangent
+	auto& bufferTangent = mesh.m_vertexBuffers.normal;
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.m_VBOs[reVertexAttribs::TANGENT]);
+	glBufferData(GL_ARRAY_BUFFER, bufferTangent.size() * sizeof(vec3_t), &bufferTangent[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(reVertexAttribs::TANGENT, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(reVertexAttribs::TANGENT);
+}
+
+void LoadOptionalBuffers(reMesh& mesh)
+{
+	// todo make this support multiple texCoords
+	auto& bufferTexcoord = mesh.m_vertexBuffers.texCoord[0];
+	if (bufferTexcoord.size() > 0)
+	{
+		glGenBuffers(1, &mesh.m_VBOs[reVertexAttribs::TEXCOORD0]);
+		glBindBuffer(GL_ARRAY_BUFFER, mesh.m_VBOs[reVertexAttribs::TEXCOORD0]);
+		glBufferData(GL_ARRAY_BUFFER, bufferTexcoord.size() * sizeof(vec3_t), &bufferTexcoord[0], GL_STATIC_DRAW);
+		glVertexAttribPointer(reVertexAttribs::TEXCOORD0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(reVertexAttribs::TEXCOORD0);
+	}
+}
+
 void reModelManager::GPULoad(const reGuid<reModel> guid)
 {
 	reModel* model = (reModel*)GetModel(guid);
 	SDL_assert(model);
-
 	SDL_assert(!model->m_loadedOnGpu);
 
 	for (reMesh& mesh : model->m_meshes)
@@ -112,41 +154,17 @@ void reModelManager::GPULoad(const reGuid<reModel> guid)
 		glGenVertexArrays(1, &mesh.m_VAO);
 		glBindVertexArray(mesh.m_VAO);
 
-		// vertices
-		glGenBuffers(1, &mesh.m_VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, mesh.m_VBO);
-
-		int vertsSize = sizeof(reVert) * mesh.m_vertices.size();
-		glBufferData(GL_ARRAY_BUFFER, vertsSize, &mesh.m_vertices[0], GL_STATIC_DRAW);
-
 		// indices
 		glGenBuffers(1, &mesh.m_EBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.m_EBO);
+		int indicesSize = sizeof(GLuint) * mesh.m_vertexIndices.size();
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &mesh.m_vertexIndices[0], GL_STATIC_DRAW);
 
-		int indicesSize = sizeof(reTri) * mesh.m_triangles.size();
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &mesh.m_triangles[0], GL_STATIC_DRAW);
-
-		// -- vertex attributes
-		constexpr int vec3Size = sizeof(float) * 3;
-		constexpr int positionOffset = 0;
-		constexpr int normalOffset   = positionOffset + vec3Size;
-		constexpr int tangentOffset  = normalOffset + vec3Size;
-		constexpr int texCoordOffset = tangentOffset + vec3Size;
-
-		// position
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(reVert), (void*)positionOffset);
-		glEnableVertexAttribArray(0);
-		// normal
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(reVert), (void*)normalOffset);
-		glEnableVertexAttribArray(1);
-		// tangent
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(reVert), (void*)tangentOffset);
-		glEnableVertexAttribArray(2);
-		// texCoord
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(reVert), (void*)texCoordOffset);
-		glEnableVertexAttribArray(3);
+		LoadRequiredBuffers(mesh);
+		LoadOptionalBuffers(mesh);
 
 		glBindVertexArray(0);
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
@@ -158,22 +176,21 @@ void reModelManager::GPUUnload(const reGuid<reModel> guid)
 {
 	reModel* model = (reModel*)GetModel(guid);
 	SDL_assert(model);
-
 	SDL_assert(model->m_loadedOnGpu);
 
 	for (reMesh& mesh : model->m_meshes)
 	{
 		glBindVertexArray(mesh.m_VAO);
-		GLuint buffers[2] { mesh.m_VBO, mesh.m_EBO };
-		glDeleteBuffers(2, buffers);
+		glDeleteBuffers(1, &mesh.m_VAO);
+		glDeleteBuffers(reVertexAttribs::COUNT, mesh.m_VBOs);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 		glDeleteVertexArrays(1, &mesh.m_VAO);
 
+		memset(mesh.m_VBOs, 0, reVertexAttribs::COUNT);
 		mesh.m_EBO = 0;
-		mesh.m_VBO = 0;
 		mesh.m_VAO = 0;
 	}
 	model->m_loadedOnGpu = false;

@@ -73,9 +73,9 @@ void reRenderer::RenderMesh(const reRenderedMesh& mesh)
 	shaderManager->SetUniform("u_m2w", &m2w);
 	shaderManager->SetUniform("u_im2w", &im2w);
 
-	int indexCount = mesh.mesh->m_vertices.size() * 3;
-
 	glBindVertexArray(mesh.mesh->m_VAO);
+	
+	int indexCount = mesh.mesh->m_vertexIndices.size();
 	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }

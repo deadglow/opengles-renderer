@@ -198,10 +198,9 @@ GLuint reShaderManager::LoadShaderFromFile(const char* filename, GLint glShaderT
 
 	std::filesystem::path path = std::filesystem::current_path();
 	path.append(relativePath);
+	SDL_assert(std::filesystem::is_regular_file(path));
 
 	printf("\nLoading shader %s\n", path.string().c_str());
-	
-	SDL_assert(std::filesystem::is_regular_file(path));
 
 	std::ifstream f(path);
 	SDL_assert(f);

@@ -34,20 +34,30 @@ void rePrimitives::ConstructQuad(reModel& model)
 	model.m_meshes.reserve(1);
 	reMesh& mesh = model.m_meshes.emplace_back();
 
-	vec3_t normal{ 0.f, 0.f, 1.f };
-	vec3_t tangent{ -1.f, 0.f, 0.f };
-
 	// (facing away) TR, TL, BL, BR
-	mesh.m_vertices = {
-		{ vec3_t { 0.5f, 0.5f, 0.0f },   normal, tangent, vec2_t{ 1.f, 1.f } },
-		{ vec3_t { -0.5f, 0.5f, 0.0f },  normal, tangent, vec2_t{ 0.f, 1.f } },
-		{ vec3_t { -0.5f, -0.5f, 0.0f }, normal, tangent, vec2_t{ 0.f, 0.f } },
-		{ vec3_t { 0.5f, -0.5f, 0.0f },  normal, tangent, vec2_t{ 0.f, 1.f } },
+	mesh.m_vertexBuffers.position = {
+		vec3_t { 0.5f, 0.5f, 0.0f },
+		vec3_t { -0.5f, 0.5f, 0.0f },
+		vec3_t { -0.5f, -0.5f, 0.0f },
+		vec3_t { 0.5f, -0.5f, 0.0f },
 	};
 
-	mesh.m_triangles = {
-		{ 0, 1, 3 },
-		{ 2, 3, 1 },
+	vec3_t normal{ 0.f, 0.f, 1.f };
+	mesh.m_vertexBuffers.normal = { normal, normal, normal, normal };
+
+	vec3_t tangent{ -1.f, 0.f, 0.f };
+	mesh.m_vertexBuffers.tangent = { tangent, tangent, tangent, tangent };
+
+	mesh.m_vertexBuffers.texCoord[0] = {
+		vec2_t{ 1.f, 1.f },
+		vec2_t{ 0.f, 1.f },
+		vec2_t{ 0.f, 0.f },
+		vec2_t{ 0.f, 1.f },
+	};
+
+	mesh.m_vertexIndices = {
+		0, 1, 3,
+		2, 3, 1,
 	};
 }
 

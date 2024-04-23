@@ -39,11 +39,10 @@ static void ForceQuit()
 
 static void ProcessInput()
 {
-	SDL_Event event;
-
 	reInput* input = reEngine::GetInput();
-
 	input->PreUpdate();
+
+	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type)

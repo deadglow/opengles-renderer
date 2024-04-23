@@ -111,26 +111,24 @@ static void Render(SDL_Window* window)
 	renderer->Render();
 }
 
-SDL_Window* SetupSDL(int& result)
+int SetupSDL(SDL_Window*& window)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
 		printf("Error initialising SDL : %s\n", SDL_GetError());
-		result = -1;
-		return nullptr;
+		return -1;
 	}
 
 	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_WARN);
 
 	printf("SDL successfully initialised!\n");
 
-	auto window = SDL_CreateWindow("Ocean", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("Ocean", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if (!window)
 	{
 		printf("Window could not be created : %s\n", SDL_GetError());
 		ForceQuit();
-		result = -1;
-		return nullptr;
+		return -1;
 	}
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -144,8 +142,7 @@ SDL_Window* SetupSDL(int& result)
 	{
 		printf("glContext could not be created : %s\n", SDL_GetError());
 		ForceQuit();
-		result = -1;
-		return nullptr;
+		return -1;
 	}
 
 	gladLoadGLES2((GLADloadfunc)SDL_GL_GetProcAddress);
@@ -153,18 +150,17 @@ SDL_Window* SetupSDL(int& result)
 
 	SDL_GL_SetSwapInterval(0);
 
-	result = 0;
-	return window;
+	return 0;
 }
 
 int main(int argc, char* argv[])
 {
 	// init SDL
-	int result; SDL_Window* window = SetupSDL(result);
+	SDL_Window* window = nullptr;
+
+	int result = SetupSDL(window);
 	if (result != 0)
-	{
 		return result;
-	}
 
 	// set up engine components
 	reEngine::Impl* engineInstance = new reEngine::Impl(

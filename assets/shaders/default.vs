@@ -3,7 +3,7 @@ precision highp float;
 // vertex buffer
 attribute vec3 a_position;
 attribute vec3 a_normal;
-attribute vec3 a_tangent;
+attribute vec4 a_tangent;
 attribute vec2 a_texCoord;
 
 // globals
@@ -35,9 +35,8 @@ void main()
 	gl_Position = u_pMat * vec4(v_fragPos, 1.0);
 
 	vec3 normal = a_normal;
-	vec3 tangent = a_tangent;
-	tangent = normalize(tangent - dot(tangent, normal) * normal);
-	vec3 biTangent = cross(normal, tangent);
+	vec3 tangent = a_tangent.xyz;
+	vec3 biTangent = cross(normal, tangent) * a_tangent.w;
 
 	mat3 normalMat = mat3(vm2w);
 	v_TBN = normalMat * mat3(tangent, biTangent, normal);

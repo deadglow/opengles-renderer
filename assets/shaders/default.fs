@@ -26,14 +26,16 @@ varying vec2 v_texCoord;
 
 void main()
 {
-	vec3 light = u_ambientCol;
-	
+	vec3 albedo = vec3(0.9, 0.0, 0.3);
+
 	vec3 normal = v_TBN * vec3(0, 0, 1);
-	float lightAmount = dot(normal, u_lightDir);
-	light += u_lightCol * lightAmount;
+	vec3 lightDir = mat3(u_vMat) * u_lightDir;
+	float lightAmount = dot(normal, normalize(lightDir));
+	
+	vec3 light = u_ambientCol + (u_lightCol * lightAmount);
 
-	vec3 litCol = u_albedo * light;
+	vec3 litCol = albedo * light;
 
-	// gl_FragColor = vec4(litCol, 1.0);
-	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	gl_FragColor = vec4(litCol, 1.0);
+	// gl_FragColor = vec4(albedo, 1.0);
 }

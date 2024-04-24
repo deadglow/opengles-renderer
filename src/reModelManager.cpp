@@ -124,8 +124,8 @@ void LoadRequiredBuffers(reMesh& mesh)
 	// tangent
 	auto& bufferTangent = mesh.m_vertexBuffers.normal;
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.m_VBOs[reVertexAttribs::TANGENT]);
-	glBufferData(GL_ARRAY_BUFFER, bufferTangent.size() * sizeof(vec3_t), &bufferTangent[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(reVertexAttribs::TANGENT, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBufferData(GL_ARRAY_BUFFER, bufferTangent.size() * sizeof(vec4_t), &bufferTangent[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(reVertexAttribs::TANGENT, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(reVertexAttribs::TANGENT);
 }
 
@@ -137,7 +137,7 @@ void LoadOptionalBuffers(reMesh& mesh)
 	{
 		glGenBuffers(1, &mesh.m_VBOs[reVertexAttribs::TEXCOORD0]);
 		glBindBuffer(GL_ARRAY_BUFFER, mesh.m_VBOs[reVertexAttribs::TEXCOORD0]);
-		glBufferData(GL_ARRAY_BUFFER, bufferTexcoord.size() * sizeof(vec3_t), &bufferTexcoord[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, bufferTexcoord.size() * sizeof(vec2_t), &bufferTexcoord[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(reVertexAttribs::TEXCOORD0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(reVertexAttribs::TEXCOORD0);
 	}
@@ -154,14 +154,14 @@ void reModelManager::GPULoad(const reGuid<reModel> guid)
 		glGenVertexArrays(1, &mesh.m_VAO);
 		glBindVertexArray(mesh.m_VAO);
 
+		LoadRequiredBuffers(mesh);
+		LoadOptionalBuffers(mesh);
+
 		// indices
 		glGenBuffers(1, &mesh.m_EBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.m_EBO);
 		int indicesSize = sizeof(GLuint) * mesh.m_vertexIndices.size();
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, &mesh.m_vertexIndices[0], GL_STATIC_DRAW);
-
-		LoadRequiredBuffers(mesh);
-		LoadOptionalBuffers(mesh);
 
 		glBindVertexArray(0);
 

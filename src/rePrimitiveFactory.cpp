@@ -45,7 +45,7 @@ void rePrimitives::ConstructQuad(reModel& model)
 	vec3_t normal{ 0.f, 0.f, 1.f };
 	mesh.m_vertexBuffers.normal = { normal, normal, normal, normal };
 
-	vec3_t tangent{ -1.f, 0.f, 0.f };
+	vec4_t tangent{ -1.f, 0.f, 0.f, 1.0f };
 	mesh.m_vertexBuffers.tangent = { tangent, tangent, tangent, tangent };
 
 	mesh.m_vertexBuffers.texCoord[0] = {

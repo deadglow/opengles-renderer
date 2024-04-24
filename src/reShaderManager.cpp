@@ -7,6 +7,7 @@
 #include "gles2.h"
 #include "SDL/SDL.h"
 
+const char* SHADER_PATH = "assets\\shaders\\";
 const char* DEFAULT_VS = "default";
 const char* DEFAULT_FS = "default";
 
@@ -190,7 +191,7 @@ GLuint reShaderManager::LoadShaderFromFile(const char* filename, GLint glShaderT
 {
 	SDL_assert(glShaderType == GL_VERTEX_SHADER || glShaderType == GL_FRAGMENT_SHADER);
 	
-	std::string relativePath("shaders\\");
+	std::string relativePath(SHADER_PATH);
 	relativePath.append(filename);
 	
 	const char* extension = glShaderType == GL_VERTEX_SHADER ? ".vs" : ".fs";

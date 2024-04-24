@@ -6,6 +6,7 @@
 #include <string>
 
 using GLuint = unsigned int;
+using GLushort = unsigned short;
 using GLint = int;
 
 namespace reGraphics
@@ -27,7 +28,7 @@ namespace reGraphics
 
 		std::vector<vec3_t> position;
 		std::vector<vec3_t> normal;
-		std::vector<vec3_t> tangent;
+		std::vector<vec4_t> tangent;
 		std::vector<vec2_t> texCoord[MAX_TEXCOORDS];
 	};
 

@@ -13,9 +13,9 @@ using namespace reGraphics;
 reRenderer::reRenderer(SDL_Window* window)
 	: m_window(window)
 {
-	m_lightingSettings.m_ambient = vec3_t{ .1f, .1f, .1f };
-	m_lightingSettings.m_sunCol = v3_norm({ 1.f, 1.f, 1.f });
-	m_lightingSettings.m_sunDir = v3_norm({ 1.f, -.1f, .0f });
+	m_lightingSettings.m_ambient = vec3_t{ .5f, .5f, .5f };
+	m_lightingSettings.m_sunCol = vec3_t{ 1.f, 1.f, 1.f };
+	m_lightingSettings.m_sunDir = v3_norm({ 0.f, -.1f, 1.0f });
 
 	glEnable(GL_CULL_FACE);
 }
@@ -88,11 +88,13 @@ void reRenderer::GetRenderResolution(int& out_width, int& out_height) const
 
 void reRenderer::ClearScreen(const vec4_t& colour)
 {
+	int mask = GL_DEPTH_BUFFER_BIT;
 	if (m_clearScreenColourEnabled)
 	{
 		glClearColor(colour.x, colour.y, colour.z, colour.w);
+		mask |= GL_COLOR_BUFFER_BIT;
 	}
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(mask);
 }
 
 void reRenderer::SetUniformsGlobals()
@@ -132,11 +134,16 @@ void reRenderer::SetUniformsCamera(const reCamera& camera)
 void reRenderer::SetUniformsLighting()
 {
 	auto shaderManager = reEngine::GetShaderManager();
+	shaderManager->SetUniform("u_ambientCol", &m_lightingSettings.m_ambient);
+	shaderManager->SetUniform("u_lightCol", &m_lightingSettings.m_sunCol);
+	shaderManager->SetUniform("u_lightDir", &m_lightingSettings.m_sunDir);
 }
 
 void reRenderer::Render()
 {
 	ClearScreen(m_clearScreenColour);
+	glEnable(GL_DEPTH_TEST);
+	glFrontFace(GL_CW);
 
 	const reMaterialManager* materialManager = reEngine::GetMaterialManager();
 

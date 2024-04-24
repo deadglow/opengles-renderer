@@ -106,7 +106,7 @@ static void Render(SDL_Window* window)
 	renderer->m_camera = &s_camera;
 
 	auto* modelManager = reEngine::GetModelManager();
-	auto modelGuid = *modelManager->GetModelIDByName("default_quad");
+	auto modelGuid = *modelManager->GetModelIDByName("monkie");
 	renderer->AddModelToRender(reModelInst(modelGuid), m4_identity());
 	renderer->Render();
 }
@@ -171,6 +171,10 @@ int main(int argc, char* argv[])
 
 	// reset input
 	reEngine::GetInput()->Reset();
+
+	auto* modelManager = reEngine::GetModelManager();
+	auto& model = modelManager->LoadModel("monkie");
+	modelManager->GPULoad(model.m_guid);
 
 	// game loop
 	RUNNING = true;

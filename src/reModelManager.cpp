@@ -84,7 +84,7 @@ const reModel* reModelManager::GetModel(const reGuid<reModel> guid) const
 		return nullptr;
 }
 
-const reGuid<reModel>* reGraphics::reModelManager::GetModelIDByName(const char* name) const
+const reGuid<reModel>* reModelManager::GetModelIDByName(const char* name) const
 {
 	if (IsModelLoaded(name))
 		return &m_guidLookup.at(name);
@@ -97,7 +97,7 @@ bool reModelManager::IsModelLoaded(const reGuid<reModel> guid) const
 	return m_models.find(guid) != m_models.end();
 }
 
-bool reGraphics::reModelManager::IsModelLoaded(const char* name) const
+bool reModelManager::IsModelLoaded(const char* name) const
 {
 	return m_guidLookup.find(name) != m_guidLookup.end();
 }

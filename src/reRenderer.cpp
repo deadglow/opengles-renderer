@@ -32,35 +32,37 @@ float reRenderer::GetAspectRatio() const
 	return (float)w / (float)h;
 }
 
-void reRenderer::AddModelToRender(const reModelInst& model, const mat4_t& transform)
+void reRenderer::AddModelToRender(const reModelInst& instance, const mat4_t& transform)
 {
 	const reModelManager* modelManager = reEngine::GetModelManager();
-	const reModel* baseModel = modelManager->GetModel(model.m_baseModel);
-	SDL_assert(baseModel);
-	SDL_assert(baseModel->m_loadedOnGpu);
+	const reModel& baseModel = *modelManager->GetModel(instance.m_baseModel);
+	SDL_assert(&baseModel);
+	SDL_assert(baseModel.m_loadedOnGpu);
 
-	int count = baseModel->m_meshes.size();
+	const std::vector<reGuid<reMaterial>>* materials;
+	if (instance.m_materialOverrides.size() > 0)
+	{
+		materials = &instance.m_materialOverrides;
+	}
+	else if (baseModel.m_materials.size() > 0)
+	{
+		materials = &baseModel.m_materials;
+	}
+	else
+	{
+		materials = nullptr;
+	}
+
+	int count = baseModel.m_meshes.size();
 	for (int i = 0; i < count; ++i)
 	{
-		const reMesh& mesh = baseModel->m_meshes[i];
-
-		reGuid<reMaterial> materialGuid(0);
-		if (model.m_materialOverrides.size() > 0)
-		{
-			materialGuid = model.m_materialOverrides[i];
-		}
-		else if (baseModel->m_materials.size() > 0)
-		{
-			materialGuid = baseModel->m_materials[i];
-		}
+		reGuid<reMaterial> materialGuid = materials? materials->at(i) : reGuid<reMaterial>(0);
 
 		if (m_renderList.find(materialGuid) == 0)
-		{
 			m_renderList.emplace(materialGuid, std::vector<reRenderedMesh>());
-		}
 
-		auto* meshList = &m_renderList[materialGuid];
-		meshList->push_back(reRenderedMesh{ &mesh, transform });
+		const reMesh& mesh = baseModel.m_meshes[i];
+		m_renderList[materialGuid].push_back(reRenderedMesh{ &mesh, transform });
 	}
 }
 

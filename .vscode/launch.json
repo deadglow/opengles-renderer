@@ -6,7 +6,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/renderer.exe",
+            "program": "${workspaceFolder}/bin/Debug/opengles-renderer.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

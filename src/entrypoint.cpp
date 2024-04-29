@@ -4,7 +4,6 @@
 
 int main(int argc, char* argv[])
 {
-	// init SDL
 	reGame game;
 
 	int result = game.Init();
@@ -12,8 +11,11 @@ int main(int argc, char* argv[])
 	{
 		result = game.Run();
 	}
+	else
+	{
+		printf("Game failed to init, error result: %i", result);
+	}
 
 	SDL_Quit();
-
 	return result;
 }

@@ -23,7 +23,7 @@
 //
 
 typedef struct { float xy, yz, zx; } bivector3_t;
-static inline bivector3_t bivector3(float BV1, float BV2, float BV3)      { return (bivector3_t) { BV1, BV2, BV3 }; }
+static inline bivector3_t bivector3(float xy, float yz, float zx)      { return (bivector3_t) { xy, yz, zx }; }
 
 static inline bivector3_t bv3_wedge(const vec3_t u, const vec3_t v) {
 	return bivector3(

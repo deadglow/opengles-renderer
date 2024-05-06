@@ -53,29 +53,28 @@ static inline float rot3_length(const rotor3_t r) {
 	return sqrtf(rot3_lengthsqr(r));
 }
 
-static inline rotor3_t rot3_normalize(const rotor3_t r);
-static inline rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b);
-static inline rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad);
-static inline rotor3_t rot3_from_to(const vec3_t from, vec3_t to);
-static inline rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to);
-static inline rotor3_t rot3_look_rotation(const vec3_t forward, const vec3_t up);
-static inline rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const vec3_t up);
-static inline vec3_t rot3_transform(const rotor3_t r, const vec3_t v);
-static inline mat4_t rot3_matrix(const rotor3_t r);
-
-static inline mat4_t m4_trs(const vec3_t t, const rotor3_t r, const float s);
+rotor3_t rot3_normalize(const rotor3_t r);
+rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b);
+rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad);
+rotor3_t rot3_from_to(const vec3_t from, vec3_t to);
+rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to);
+rotor3_t rot3_look_rotation(const vec3_t forward, const vec3_t up);
+rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const vec3_t up);
+vec3_t rot3_transform(const rotor3_t r, const vec3_t v);
+mat4_t rot3_matrix(const rotor3_t r);
+mat4_t m4_trs(const vec3_t t, const rotor3_t r, const float s);
 
 #endif // MATH_ROTOR_HEADER
 
 #ifdef MATH_ROTOR_IMPLEMENTATION
 
-static inline rotor3_t rot3_normalize(const rotor3_t r)
+rotor3_t rot3_normalize(const rotor3_t r)
 {
 	float l = rot3_length(r);
 	return rotor3(r.s / l, r.xy / l, r.yz / l, r.zx / l);
 }
 
-static inline rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b)
+rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b)
 {
 	return rotor3(
 		(a.s * b.s ) - (a.xy * b.xy) - (a.yz * b.yz) - (a.zx * b.zx),
@@ -85,7 +84,7 @@ static inline rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b)
 	);
 }
 
-static inline rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad)
+rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad)
 {
 	float sina = sinf(angleRad * 0.5f);
 	return rotor3(
@@ -97,7 +96,7 @@ static inline rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad)
 }
 
 // ensure from and to are normalized
-static inline rotor3_t rot3_from_to(const vec3_t from, vec3_t to)
+rotor3_t rot3_from_to(const vec3_t from, vec3_t to)
 {
 	const float theta = acosf(v3_dot(from, to));
 	const float cosHalfTheta = cosf(theta * 0.5f);
@@ -114,7 +113,7 @@ static inline rotor3_t rot3_from_to(const vec3_t from, vec3_t to)
 
 // ensure from and to are normalized
 // ensure from and to are not facing directly away from each other
-static inline rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to)
+rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to)
 {
 	const vec3_t halfway = v3_norm(v3_add(from, to));
 
@@ -128,7 +127,7 @@ static inline rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to)
 	);
 }
 
-static inline rotor3_t rot3_look_rotation(const vec3_t forward, const vec3_t up)
+rotor3_t rot3_look_rotation(const vec3_t forward, const vec3_t up)
 {
 	if (v3_dot(forward, forward) < 0.00001f)
 	{
@@ -150,7 +149,7 @@ static inline rotor3_t rot3_look_rotation(const vec3_t forward, const vec3_t up)
 }
 
 // ensure forward and up are normalized unit vectors and aren't the same
-static inline rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const vec3_t up)
+rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const vec3_t up)
 {
 	float fDotU = v3_dot(forward, up);
 	vec3_t v = v3_muls(v3_add(forward, up), -fDotU);
@@ -160,7 +159,7 @@ static inline rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const v
 }
 
 // r v r*
-static inline vec3_t rot3_transform(const rotor3_t r, const vec3_t v)
+vec3_t rot3_transform(const rotor3_t r, const vec3_t v)
 {
 	// q = rv
 	vec3_t q = vec3(
@@ -181,7 +180,7 @@ static inline vec3_t rot3_transform(const rotor3_t r, const vec3_t v)
 	// p.xyz cancels to zero if the calculations for q are substituted in.
 }
 
-static inline mat4_t rot3_matrix(const rotor3_t r)
+mat4_t rot3_matrix(const rotor3_t r)
 {
 	const vec3_t m_x = rot3_transform(r, vec3(1.f, 0.f, 0.f));
 	const vec3_t m_y = rot3_transform(r, vec3(0.f, 1.f, 0.f));
@@ -195,7 +194,7 @@ static inline mat4_t rot3_matrix(const rotor3_t r)
 	);
 }
 
-static inline mat4_t m4_trs(const vec3_t t, const rotor3_t r, const float s)
+mat4_t m4_trs(const vec3_t t, const rotor3_t r, const float s)
 {
 	const vec3_t m_x = rot3_transform(r, vec3(s, 0.f, 0.f));
 	const vec3_t m_y = rot3_transform(r, vec3(0.f, s, 0.f));

@@ -3,8 +3,9 @@
 #define GLAD_GLES2_IMPLEMENTATION
 #include "gles2.h"
 
-#define MATH_3D_IMPLEMENTATION
-#include "math_3d.h"
+#include "reMath.h"
+
+#include "reTransform.h"
 
 using namespace reGraphics;
 
@@ -46,7 +47,9 @@ void TempModelStuff(reCamera& camera)
 	
 	auto* modelManager = reEngine::GetModelManager();
 	auto modelGuid = *modelManager->GetModelIDByName("monkie");
-	renderer->AddModelToRender(reModelInst(modelGuid), m4_identity());
+	reTransform t;
+	t.Reset();
+	renderer->AddModelToRender(reModelInst(modelGuid), t.ComputeMatrix());
 }
 #pragma endregion
 

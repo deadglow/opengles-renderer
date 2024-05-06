@@ -1,5 +1,5 @@
 #include "rePrimitiveFactory.hpp"
-#include "math_3d.h"
+#include "reMath.h"
 #include "reModel.hpp"
 #include "SDL/SDL.h"
 

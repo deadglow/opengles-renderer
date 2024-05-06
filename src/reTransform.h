@@ -1,6 +1,5 @@
 #pragma once
-#include "math_3d.h"
-#include "math_rotor.h"
+#include "reMath.h"
 
 struct reTransform
 {

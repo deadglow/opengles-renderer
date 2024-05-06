@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "math_3d.h"
+#include "reMath.h"
 
 namespace reGraphics
 {

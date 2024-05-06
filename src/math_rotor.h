@@ -53,12 +53,30 @@ static inline float rot3_length(const rotor3_t r) {
 	return sqrtf(rot3_lengthsqr(r));
 }
 
-static inline rotor3_t rot3_normalize(const rotor3_t r) {
+static inline rotor3_t rot3_normalize(const rotor3_t r);
+static inline rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b);
+static inline rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad);
+static inline rotor3_t rot3_from_to(const vec3_t from, vec3_t to);
+static inline rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to);
+static inline rotor3_t rot3_look_rotation(const vec3_t forward, const vec3_t up);
+static inline rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const vec3_t up);
+static inline vec3_t rot3_transform(const rotor3_t r, const vec3_t v);
+static inline mat4_t rot3_matrix(const rotor3_t r);
+
+static inline mat4_t m4_trs(const vec3_t t, const rotor3_t r, const float s);
+
+#endif // MATH_ROTOR_HEADER
+
+#ifdef MATH_ROTOR_IMPLEMENTATION
+
+static inline rotor3_t rot3_normalize(const rotor3_t r)
+{
 	float l = rot3_length(r);
 	return rotor3(r.s / l, r.xy / l, r.yz / l, r.zx / l);
 }
 
-static inline rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b) {
+static inline rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b)
+{
 	return rotor3(
 		(a.s * b.s ) - (a.xy * b.xy) - (a.yz * b.yz) - (a.zx * b.zx),
 		(a.s * b.xy) + (a.xy * b.s ) - (a.yz * b.zx) + (a.zx * b.yz),
@@ -67,7 +85,8 @@ static inline rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b) {
 	);
 }
 
-static inline rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad) {
+static inline rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad)
+{
 	float sina = sinf(angleRad * 0.5f);
 	return rotor3(
 		cosf(angleRad * 0.5f),
@@ -75,6 +94,69 @@ static inline rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad)
 		-sina * plane.xy,
 		-sina * plane.zx
 	);
+}
+
+// ensure from and to are normalized
+static inline rotor3_t rot3_from_to(const vec3_t from, vec3_t to)
+{
+	const float theta = acosf(v3_dot(from, to));
+	const float cosHalfTheta = cosf(theta * 0.5f);
+	const float sinHalfTheta = sinf(theta * 0.5f);
+
+	const bivector3_t wedge = bv3_wedge(to, from);
+	return rotor3(
+		cosHalfTheta,
+		sinHalfTheta * wedge.xy,
+		sinHalfTheta * wedge.yz,
+		sinHalfTheta * wedge.zx
+	);
+}
+
+// ensure from and to are normalized
+// ensure from and to are not facing directly away from each other
+static inline rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to)
+{
+	const vec3_t halfway = v3_norm(v3_add(from, to));
+
+	const bivector3_t wedge = bv3_wedge(halfway, from);
+	float fDotH = v3_dot(from, halfway);
+	return rotor3(
+		fDotH,
+		wedge.xy,
+		wedge.yz,
+		wedge.zx
+	);
+}
+
+static inline rotor3_t rot3_look_rotation(const vec3_t forward, const vec3_t up)
+{
+	if (v3_dot(forward, forward) < 0.00001f)
+	{
+		return rot3_identity();
+	}
+	
+	float fDotU = v3_dot(forward, up);
+	if (fDotU > 0.999f)
+	{
+		vec3_t v = v3_muls(v3_add(forward, up), -fDotU);
+		rotor3_t r1 = rot3_from_to(v3_forward, v);
+		rotor3_t r2 = rot3_from_to(v, forward);
+		return rot3_mul(r1, r2);
+	}
+	else
+	{
+		return rot3_from_to(v3_forward, forward);
+	}
+}
+
+// ensure forward and up are normalized unit vectors and aren't the same
+static inline rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const vec3_t up)
+{
+	float fDotU = v3_dot(forward, up);
+	vec3_t v = v3_muls(v3_add(forward, up), -fDotU);
+	rotor3_t r1 = rot3_from_to(v3_forward, v);
+	rotor3_t r2 = rot3_from_to(v, forward);
+	return rot3_mul(r1, r2);
 }
 
 // r v r*
@@ -109,13 +191,22 @@ static inline mat4_t rot3_matrix(const rotor3_t r)
 		m_x.x, m_y.x, m_z.x, 0.f,
 		m_x.y, m_y.y, m_z.y, 0.f,
 		m_x.z, m_y.z, m_z.z, 0.f,
-		0.f, 0.f, 0.f, 1.f
+		0.f,   0.f,   0.f,   1.f
 	);
 }
 
+static inline mat4_t m4_trs(const vec3_t t, const rotor3_t r, const float s)
+{
+	const vec3_t m_x = rot3_transform(r, vec3(s, 0.f, 0.f));
+	const vec3_t m_y = rot3_transform(r, vec3(0.f, s, 0.f));
+	const vec3_t m_z = rot3_transform(r, vec3(0.f, 0.f, s));
 
-#endif // MATH_ROTOR_HEADER
-
-#ifdef MATH_ROTOR_IMPLEMENTATION
+	return mat4(
+		m_x.x, m_y.x, m_z.x, t.x,
+		m_x.y, m_y.y, m_z.y, t.y,
+		m_x.z, m_y.z, m_z.z, t.z,
+		0.f,   0.f,   0.f,   1.f
+	);
+}
 
 #endif // MATH_ROTOR_IMPLEMENTATION

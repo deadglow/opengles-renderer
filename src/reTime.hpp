@@ -23,7 +23,7 @@ struct reTime
 		deltaTime = (double)((now - last) / (double)SDL_GetPerformanceFrequency());
 		accumulator += deltaTime;
 
-		time = (double)SDL_GetTicks64() * 1000.0;
+		time = (double)SDL_GetTicks64() / 1000.0;
 	}
 
 	void Tick()

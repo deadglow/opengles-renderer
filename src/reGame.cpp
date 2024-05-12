@@ -47,8 +47,14 @@ void TempModelStuff(reCamera& camera)
 	
 	auto* modelManager = reEngine::GetModelManager();
 	auto modelGuid = *modelManager->GetModelIDByName("monkie");
+
+	reTime* time = reEngine::GetTime();
 	reTransform t;
 	t.Reset();
+
+	rotor3_t r = rot3_plane_angle(bivector3(1.f, 0.f, 0.f), (float)time->time * 1.f);
+	t.Rotate(r);
+
 	renderer->AddModelToRender(reModelInst(modelGuid), t.ComputeMatrix());
 }
 #pragma endregion

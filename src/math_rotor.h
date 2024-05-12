@@ -53,8 +53,18 @@ static inline float rot3_length(const rotor3_t r) {
 	return sqrtf(rot3_lengthsqr(r));
 }
 
+// double verified on paper
+static inline rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b)
+{
+	return rotor3(
+		(a.s * b.s) - (a.xy * b.xy) - (a.yz * b.yz) - (a.zx * b.zx),
+		(a.s * b.xy) + (a.xy * b.s ) - (a.yz * b.zx) + (a.zx * b.yz),
+		(a.s * b.yz) + (a.xy * b.zx) + (a.yz * b.s ) - (a.zx * b.xy),
+		(a.s * b.zx) - (a.xy * b.yz) + (a.yz * b.xy) + (a.zx * b.s )
+	);
+};
+
 rotor3_t rot3_normalize(const rotor3_t r);
-rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b);
 rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad);
 rotor3_t rot3_from_to(const vec3_t from, vec3_t to);
 rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to);
@@ -74,28 +84,20 @@ rotor3_t rot3_normalize(const rotor3_t r)
 	return rotor3(r.s / l, r.xy / l, r.yz / l, r.zx / l);
 }
 
-rotor3_t rot3_mul(const rotor3_t a, const rotor3_t b)
-{
-	return rotor3(
-		(a.s * b.s ) - (a.xy * b.xy) - (a.yz * b.yz) - (a.zx * b.zx),
-		(a.s * b.xy) + (a.xy * b.s ) - (a.yz * b.zx) + (a.zx * b.yz),
-		(a.s * b.yz) + (a.xy * b.zx) + (a.yz * b.s ) - (a.zx * b.xy),
-		(a.s * b.zx) - (a.xy * b.yz) + (a.yz * b.xy) + (a.zx * b.s )
-	);
-}
-
 rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad)
 {
-	float sina = sinf(angleRad * 0.5f);
+	angleRad = angleRad * 0.5f;
+	float sina = sinf(angleRad);
 	return rotor3(
-		cosf(angleRad * 0.5f),
-		-sina * plane.xy,
-		-sina * plane.xy,
-		-sina * plane.zx
+		cosf(angleRad),
+		sina * plane.xy,
+		sina * plane.yz,
+		sina * plane.zx
 	);
 }
 
 // ensure from and to are normalized
+// #NEEDS-CHECKING
 rotor3_t rot3_from_to(const vec3_t from, vec3_t to)
 {
 	const float theta = acosf(v3_dot(from, to));
@@ -113,6 +115,7 @@ rotor3_t rot3_from_to(const vec3_t from, vec3_t to)
 
 // ensure from and to are normalized
 // ensure from and to are not facing directly away from each other
+// #NEEDS-CHECKING
 rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to)
 {
 	const vec3_t halfway = v3_norm(v3_add(from, to));
@@ -127,6 +130,7 @@ rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to)
 	);
 }
 
+// #NEEDS-CHECKING
 rotor3_t rot3_look_rotation(const vec3_t forward, const vec3_t up)
 {
 	if (v3_dot(forward, forward) < 0.00001f)
@@ -149,6 +153,7 @@ rotor3_t rot3_look_rotation(const vec3_t forward, const vec3_t up)
 }
 
 // ensure forward and up are normalized unit vectors and aren't the same
+// #NEEDS-CHECKING
 rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const vec3_t up)
 {
 	float fDotU = v3_dot(forward, up);
@@ -158,28 +163,34 @@ rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const vec3_t up)
 	return rot3_mul(r1, r2);
 }
 
+// checked twice
 // r v r*
 vec3_t rot3_transform(const rotor3_t r, const vec3_t v)
 {
-	// q = rv
-	vec3_t q = vec3(
+	// s = rv
+	vec3_t s = vec3(
 		(v.x * r.s) + (v.y * r.xy) - (v.z * r.zx),
 		(v.y * r.s) - (v.x * r.xy) + (v.z * r.yz),
 		(v.z * r.s) - (v.y * r.yz) + (v.x * r.zx)
 	);
 
-	float qxyz = v.x * r.yz + v.y * r.zx + v.z * r.xy;
+	float sxyz = v.x * r.yz + v.y * r.zx + v.z * r.xy;
+
+	rotor3_t g = rot3_reverse(r);
 
 	// p = q * r^-1
-	return vec3(
-		(q.x * r.s) + (q.y * r.xy) - (q.z * r.zx) + (qxyz * r.yz),
-		(q.y * r.s) - (q.x * r.xy) - (q.z * r.yz) + (qxyz * r.zx),
-		(q.z * r.s) + (q.x * r.zx) - (q.y * r.yz) + (qxyz * r.xy)
+	vec3_t v3 = vec3(
+		(s.x * g.s) - (s.y * g.xy) + (s.z * g.zx) - (sxyz * g.yz),
+		(s.y * g.s) + (s.x * g.xy) - (s.z * g.yz) - (sxyz * g.zx),
+		(s.z * g.s) - (s.x * g.zx) + (s.y * g.yz) - (sxyz * g.xy)
 	);
-	// p.xyz = (qxyz * r.s) - (q.x * r.yz) - (q.y * r.zx) - (q.z * r.xy);
-	// p.xyz cancels to zero if the calculations for q are substituted in.
+	return v3;
+
+	// p.xyz = (sxyz * r.s) - (s.x * r.yz) - (s.y * r.zx) - (s.z * r.xy);
+	// p.xyz cancels to zero if the calculations for s are substituted in.
 }
 
+// #NEEDS-CHECKING
 mat4_t rot3_matrix(const rotor3_t r)
 {
 	const vec3_t m_x = rot3_transform(r, vec3(1.f, 0.f, 0.f));
@@ -194,6 +205,7 @@ mat4_t rot3_matrix(const rotor3_t r)
 	);
 }
 
+// #NEEDS-CHECKING
 mat4_t m4_trs(const vec3_t t, const rotor3_t r, const float s)
 {
 	const vec3_t m_x = rot3_transform(r, vec3(s, 0.f, 0.f));

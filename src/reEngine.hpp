@@ -13,7 +13,6 @@ namespace reGraphics
 
 class reTime;
 class reInput;
-class reCamera;
 
 class reEngine
 {

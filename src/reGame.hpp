@@ -6,7 +6,13 @@
 #include "reRenderer.hpp"
 #include "reShaderManager.hpp"
 #include "reInput.hpp"
-#include "reCamera.hpp"
+#include "reGuid.hpp"
+
+template <typename K, typename V>
+using umap = std::unordered_map<K, V>;
+
+#include "reTestListener.hpp"
+
 
 #include "SDL/SDL.h"
 
@@ -27,6 +33,11 @@ public:
 	void Update();
 	void Render();
 
+	void RegisterBaseListeners();
+
+	void RegisterListener(const reGuid<reIListener> guid, reIListener* listener);
+	void DeregisterListener(const reGuid<reIListener> guid);
+
 	void Quit();
 
 	bool IsRunning() const { return m_running; }
@@ -36,5 +47,8 @@ private:
 	reEngine::Impl* m_engineInstance = nullptr;
 	bool m_running = false;
 
-	reCamera m_camera = reCamera(70.f, 0.001f, 1000.0f);
+	umap<reGuid<reIListener>, reIListener*> m_listeners;
+
+
+	reTestListener m_testListener;
 };

@@ -105,6 +105,9 @@ v1.0  2016-02-15  Initial release
 
 typedef struct { float x, y; } vec2_t;
 static inline vec2_t vec2(float x, float y)        { return (vec2_t){ x, y }; }
+static inline vec2_t v2_zero = vec2(0.f, 0.f);
+static inline vec2_t v2_right = vec2(1.f, 0.f);
+static inline vec2_t v2_up = vec2(0.f, 1.f);
 
 static inline vec2_t v2_add   (vec2_t a, vec2_t b)          { return (vec2_t){ a.x + b.x, a.y + b.y   }; }
 static inline vec2_t v2_adds  (vec2_t a, float s)           { return (vec2_t){ a.x + s,   a.y + s,    }; }
@@ -535,13 +538,18 @@ mat4_t m4_perspective(float vertical_field_of_view_in_deg, float aspect_ratio, f
 	float f = 1.0f / tanf(fovy_in_rad / 2.0f);
 	float ar = aspect_ratio;
 	float nd = near_view_distance, fd = far_view_distance;
-	
-	return mat4(
+
+	mat4_t flipZ = m4_identity();
+	flipZ.m22 = -1;
+
+	mat4_t persp = mat4(
 		 f / ar,           0,                0,                0,
 		 0,                f,                0,                0,
 		 0,                0,               (fd+nd)/(nd-fd),  (2*fd*nd)/(nd-fd),
 		 0,                0,               -1,                0
 	);
+
+	return m4_mul(persp, flipZ);
 }
 
 /**

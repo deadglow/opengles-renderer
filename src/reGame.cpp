@@ -21,23 +21,22 @@ void TempInputStuff(reCamera& camera)
 	vec3_t moveInput = vec3(input->moveXAxis.Value(), input->moveYAxis.Value(), input->moveZAxis.Value());
 
 	float angle = 70;
-	float speed = 10;
-
 	angle *= M_DEG2RAD * time->deltaTime;
+	float speed = 10;
 	speed *= time->deltaTime;
-	
-	camera.Rotate(vec3(0, 1, 0), angle * camInput.x);
-	camera.Rotate(camera.GetRight(), angle * -camInput.y);
 
-	vec3_t right = v3_muls(camera.GetRight(), moveInput.x);
-	vec3_t up = v3_muls(vec3(0, 1, 0), moveInput.y);
-	vec3_t forward = v3_muls(camera.m_forward, -moveInput.z);
+	camera.m_viewAngles.x += angle * camInput.y;
+	camera.m_viewAngles.y += angle * -camInput.x;
+	camera.ApplyViewAngles();
 
-	vec3_t deltaXZ = v3_norm(v3_add(right, forward));
-	deltaXZ = v3_muls(deltaXZ, speed);
-	up = v3_muls(up, speed);
+	reTransform& camTransform = camera.m_transform;
 
-	camera.Translate(v3_add(deltaXZ, up));
+	vec3_t deltaXZ = v3_add(v3_muls(v3_right, moveInput.x), v3_muls(v3_forward, moveInput.z));
+	deltaXZ = v3_muls(v3_norm(deltaXZ), speed);
+	deltaXZ = rot3_transform(camTransform.rotation, deltaXZ);
+
+	vec3_t translation = v3_add(deltaXZ, v3_muls(v3_up, moveInput.y * speed));
+	camTransform.position = v3_add(camTransform.position, translation);
 }
 
 void TempModelStuff(reCamera& camera)
@@ -49,13 +48,12 @@ void TempModelStuff(reCamera& camera)
 	auto modelGuid = *modelManager->GetModelIDByName("monkie");
 
 	reTime* time = reEngine::GetTime();
-	reTransform t;
-	t.Reset();
 
+	reTransform t = reTransform::Identity();
 	rotor3_t r = rot3_plane_angle(bivector3(1.f, 0.f, 0.f), (float)time->time * 1.f);
 	t.Rotate(r);
 
-	renderer->AddModelToRender(reModelInst(modelGuid), t.ComputeMatrix());
+	renderer->AddModelToRender(reModelInst(modelGuid), t.ConstructMatrix());
 }
 #pragma endregion
 

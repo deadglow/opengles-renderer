@@ -3,19 +3,22 @@
 
 struct reTransform
 {
+public:
 	vec3_t position;
 	rotor3_t rotation;
 	float scale;
 
-	void Reset()
-	{
-		position = v3_zero;
-		rotation = rot3_identity();
-		scale = 1.f;
+	static reTransform Identity() { return { v3_zero, rot3_identity(), 1.f }; }
+
+	void Reset() {
+		*this = Identity();
 	}
 
-	mat4_t ComputeMatrix() const
-	{
+	vec3_t GetRight() const { return rot3_transform(rotation, v3_right); }
+	vec3_t GetUp() const { return rot3_transform(rotation, v3_up); }
+	vec3_t GetForward() const { return rot3_transform(rotation, v3_forward); }
+
+	mat4_t ConstructMatrix() const {
 		return m4_trs(position, rotation, scale);
 	}
 

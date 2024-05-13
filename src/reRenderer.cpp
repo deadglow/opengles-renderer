@@ -121,7 +121,7 @@ void reRenderer::SetUniformsCamera(const reCamera& camera)
 
 	mat4_t perspective = camera.GetPerspectiveMatrix(aspect);
 	mat4_t iPerspective = m4_invert_affine(perspective);
-	mat4_t iViewMat = camera.GetTransform();
+	mat4_t iViewMat = camera.m_transform.ConstructMatrix();
 	mat4_t viewMat = m4_invert_affine(iViewMat);
 
 	mat4_t vpMat = m4_mul(perspective, viewMat);

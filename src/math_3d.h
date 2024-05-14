@@ -93,6 +93,12 @@ v1.0  2016-02-15  Initial release
 #define M_RAD2DEG (180.0 / M_PI)
 #endif
 
+// Scalar functions
+static inline float lerp(float a, float b, float t)
+{
+	return a + (b - a) * t;
+}
+
 //
 // 2D vectors
 // 

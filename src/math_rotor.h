@@ -72,6 +72,7 @@ rotor3_t rot3_normalize(const rotor3_t r);
 rotor3_t rot3_plane_angle(const bivector3_t plane, float angleRad);
 rotor3_t rot3_from_to(const vec3_t from, vec3_t to);
 rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to);
+rotor3_t rot3_nlerp(const rotor3_t a, const rotor3_t b, float t);
 rotor3_t rot3_look_rotation(const vec3_t forward, const vec3_t up);
 rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const vec3_t up);
 vec3_t rot3_transform(const rotor3_t r, const vec3_t v);
@@ -132,6 +133,28 @@ rotor3_t rot3_from_to_fast(const vec3_t from, vec3_t to)
 		wedge.yz,
 		wedge.zx
 	);
+}
+
+rotor3_t rot3_nlerp(const rotor3_t a, const rotor3_t b, float t)
+{
+	const float dot = a.s * b.s + a.xy * b.xy + a.yz * b.yz + a.zx * b.zx;
+	rotor3_t signedA = a;
+	if (dot < 0.f)
+	{
+		signedA.s = -a.s;
+		signedA.xy = -a.xy;
+		signedA.yz = -a.yz;
+		signedA.zx = -a.zx;
+	}
+
+	rotor3_t r = {
+		lerp(signedA.s, b.s, t),
+		lerp(signedA.xy, b.xy, t),
+		lerp(signedA.yz, b.yz, t),
+		lerp(signedA.zx, b.zx, t),
+	};
+
+	return rot3_normalize(r);
 }
 
 // #NEEDS-CHECKING

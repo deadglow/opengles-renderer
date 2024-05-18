@@ -1,7 +1,7 @@
 #pragma once
 
 #include "reListener.hpp"
-#include "reCamera.hpp"
+#include "reFlyCam.hpp"
 
 class reTestListener : reIListener
 {
@@ -10,5 +10,5 @@ public:
 	void OnUpdate() override;
 	void OnPreRender() override;
 
-	reCamera m_camera = reCamera(70.f, 0.001f, 1000.0f);
+	reFlyCam m_flyCam = reFlyCam(70.f, 0.001f, 1000.0f);
 };

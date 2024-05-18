@@ -49,6 +49,5 @@ private:
 
 	umap<reGuid<reIListener>, reIListener*> m_listeners;
 
-
 	reTestListener m_testListener;
 };

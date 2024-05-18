@@ -11,7 +11,7 @@
 
 using namespace reGraphics;
 
-void TempInputStuff(reCamera& camera)
+void TempInputStuff(reFlyCam& camera)
 {
 	reInput* input = reEngine::GetInput();
 	reTime* time = reEngine::GetTime();
@@ -21,29 +21,13 @@ void TempInputStuff(reCamera& camera)
 	vec2_t camInput = vec2(input->camXAxis.Value(), input->camYAxis.Value());
 	vec3_t moveInput = vec3(input->moveXAxis.Value(), input->moveYAxis.Value(), input->moveZAxis.Value());
 
-	float angle = 70;
-	angle *= M_DEG2RAD * time->deltaTime;
-	float speed = 10;
-	speed *= time->deltaTime;
-
-	camera.m_viewAngles.x += angle * camInput.y;
-	camera.m_viewAngles.y += angle * -camInput.x;
-	camera.ApplyViewAngles();
-
-	reTransform& camTransform = camera.m_transform;
-
-	vec3_t deltaXZ = v3_add(v3_muls(v3_right, moveInput.x), v3_muls(v3_forward, moveInput.z));
-	deltaXZ = v3_muls(v3_norm(deltaXZ), speed);
-	deltaXZ = rot3_transform(camTransform.rotation, deltaXZ);
-	vec3_t deltaUp = v3_muls(v3_up, moveInput.y * speed);
-	vec3_t translation = v3_add(deltaXZ, deltaUp);
-	camTransform.position = v3_add(camTransform.position, translation);
+	camera.MoveWithInput(camInput, moveInput, time->deltaTime);
 }
 
-void TempModelStuff(reCamera& camera)
+void TempModelStuff(reFlyCam& camera)
 {
 	auto* renderer = reEngine::GetRenderer();
-	renderer->m_camera = &camera;
+	renderer->m_camera = &camera.m_camera;
 	
 	auto* modelManager = reEngine::GetModelManager();
 	auto modelGuid = *modelManager->GetModelIDByName("monkie");
@@ -63,8 +47,8 @@ void reTestListener::OnUpdate()
 
 void reTestListener::OnPreRender()
 {
-	TempInputStuff(m_camera);
-	TempModelStuff(m_camera);
+	TempInputStuff(m_flyCam);
+	TempModelStuff(m_flyCam);
 }
 
 void reTestListener::OnRegister()

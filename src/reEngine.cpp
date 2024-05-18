@@ -33,6 +33,11 @@ reGraphics::reRenderer* reEngine::GetRenderer()
 	return &m_instance->m_renderer;
 }
 
+rePhysics::rePhysicsSystem* reEngine::GetPhysicsSystem()
+{
+	return &m_instance->m_physicsSystem;
+}
+
 reTime* reEngine::GetTime()
 {
 	return &m_instance->m_time;
@@ -41,4 +46,13 @@ reTime* reEngine::GetTime()
 reInput* reEngine::GetInput()
 {
 	return &m_instance->m_input;
+}
+
+reDebugRender* reEngine::GetDebugRender()
+{
+#if defined(ENABLE_DEBUG_RENDER)
+	return &m_instance->m_debugRender;
+#else
+	return nullptr;
+#endif
 }

@@ -7,18 +7,6 @@
 
 using namespace reGraphics;
 
-reGame::~reGame()
-{
-	if (m_engineInstance)
-	{
-		reEngine::SetInstance(nullptr);
-		delete m_engineInstance;
-	}
-	
-	m_window = nullptr;
-	SDL_Quit();
-}
-
 int SetupSDL(SDL_WindowHandle& window)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -71,12 +59,25 @@ int reGame::Init()
 	);
 	reEngine::SetInstance(m_engineInstance);
 
-	// reset input
 	reEngine::GetInput()->Reset();
+	reEngine::GetPhysicsSystem()->Init();
 
 	RegisterBaseListeners();
 
 	return result;
+}
+
+void reGame::Dispose()
+{
+	if (m_engineInstance)
+	{
+		reEngine::GetPhysicsSystem()->Dispose();
+		reEngine::SetInstance(nullptr);
+		delete m_engineInstance;
+	}
+	
+	m_window = nullptr;
+	SDL_Quit();
 }
 
 int reGame::Run()
@@ -90,8 +91,14 @@ int reGame::Run()
 		DoInput();
 		while (time->accumulator > time->deltaTime)
 		{
-			Update();
-			time->Tick();
+			if (m_updateEnabled)
+			{
+				PhysicsUpdate();
+				Update();
+				time->simTime += time->tickrate;
+			}
+
+			time->accumulator -= time->tickrate;
 		}
 		Render();
 	}
@@ -125,6 +132,9 @@ void reGame::DoInput()
 			break;
 		}
 	}
+
+	if (input->pause)
+		m_updateEnabled = !m_updateEnabled;
 }
 
 void reGame::Update()
@@ -146,12 +156,21 @@ void reGame::Update()
 	}
 }
 
+void reGame::PhysicsUpdate()
+{
+	auto* physics = reEngine::GetPhysicsSystem();
+	physics->Update();
+}
+
 void reGame::Render()
 {
 	for (auto [guid, listener] : m_listeners)
 	{
 		listener->OnPreRender();
 	}
+
+	auto* physics = reEngine::GetPhysicsSystem();
+	physics->DebugRender(true, false);
 
 	auto* renderer = reEngine::GetRenderer();
 	renderer->Render();

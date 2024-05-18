@@ -11,8 +11,14 @@ namespace reGraphics
 	class reRenderer;
 }
 
+namespace rePhysics
+{
+	class rePhysicsSystem;
+}
+
 class reTime;
 class reInput;
+class reDebugRender;
 
 class reEngine
 {
@@ -28,8 +34,10 @@ public:
 	static reGraphics::reModelManager* GetModelManager();
 	static reGraphics::reMaterialManager* GetMaterialManager();
 	static reGraphics::reRenderer* GetRenderer();
+	static rePhysics::rePhysicsSystem* GetPhysicsSystem();
 	static reTime* GetTime();
 	static reInput* GetInput();
+	static reDebugRender* GetDebugRender();
 
 public:
 	static reEngine::Impl* m_instance;

@@ -5,6 +5,7 @@
 #include "reCamera.hpp"
 #include "reModelManager.hpp"
 #include "reMaterialManager.hpp"
+#include "reDebugRender.hpp"
 
 #include "gles2.h"
 
@@ -82,18 +83,36 @@ void reRenderer::RenderMesh(const reRenderedMesh& mesh)
 	glBindVertexArray(0);
 }
 
+void reRenderer::DrawDebug(reDebugRender* debugRender)
+{
+	if (!debugRender)
+		return;
+
+	reMaterialManager* materialManager = reEngine::GetMaterialManager();
+	materialManager->GetLinesMaterial().UseMaterial();
+
+	SetUniformsGlobals();
+	SetUniformsCamera(*m_camera);
+	SetUniformsLighting();
+
+	debugRender->Render();
+	// loop through debug render lines and add two elements per line
+	// glDrawElements(GL_LINE, numLines, GL_UNSIGNED_INT, 0);	
+}
+
 void reRenderer::GetRenderResolution(int& out_width, int& out_height) const
 {
 	SDL_assert(m_window);
 	SDL_GL_GetDrawableSize(m_window, &out_width, &out_height);
 }
 
-void reRenderer::ClearScreen(const vec4_t& colour)
+void reRenderer::ClearScreen(const reColour& colour)
 {
 	int mask = GL_DEPTH_BUFFER_BIT;
 	if (m_clearScreenColourEnabled)
 	{
-		glClearColor(colour.x, colour.y, colour.z, colour.w);
+		vec4_t cVec = colour.GetVec4();
+		glClearColor(cVec.x, cVec.y, cVec.z, cVec.w);
 		mask |= GL_COLOR_BUFFER_BIT;
 	}
 	glClear(mask);
@@ -104,7 +123,7 @@ void reRenderer::SetUniformsGlobals()
 	auto shaderManager = reEngine::GetShaderManager();
 	auto time = reEngine::GetTime();
 
-	float t = time->time;
+	float t = time->now;
 	shaderManager->SetUniform("u_time", &t);
 
 	float dt = time->deltaTime;
@@ -169,9 +188,11 @@ void reRenderer::Render()
 		}
 	}
 
-
 	// draw skybox
 	// post process
+
+	// draw lines
+	DrawDebug(reEngine::GetDebugRender());
 
 	SDL_GL_SwapWindow(m_window);
 

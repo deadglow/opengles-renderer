@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 	{
 		printf("Game failed to init, error result: %i", result);
 	}
+	game.Dispose();
 
-	SDL_Quit();
 	return result;
 }

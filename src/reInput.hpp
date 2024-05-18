@@ -20,10 +20,12 @@ struct reInput
 	Axis moveYAxis;
 	Axis moveZAxis;
 	bool reloadShader : 1;
+	bool pause : 1;
 
 	void PreUpdate()
 	{
 		reloadShader = false;
+		pause = false;
 	}
 
 	void ProcessKeyDown(const SDL_Event& event)
@@ -63,6 +65,13 @@ struct reInput
 
 			case SDLK_r:
 				reloadShader = true;
+				break;
+
+			case SDLK_p:
+				pause = true;
+				break;
+
+			default:
 				break;
 		}
 	}

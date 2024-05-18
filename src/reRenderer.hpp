@@ -4,12 +4,14 @@
 #include "reGuid.hpp"
 #include "reMaterial.hpp"
 #include "reMath.h"
+#include "reColour.hpp"
 
 template <typename K, typename V>
 using umap = std::unordered_map<K, V>;
 
 class SDL_Window;
 class reCamera;
+class reDebugRender;
 
 namespace reGraphics
 {
@@ -44,8 +46,10 @@ namespace reGraphics
 
 		void RenderMesh(const reRenderedMesh& mesh);
 
+		void DrawDebug(reDebugRender* debugRender);
+
 	private:
-		void ClearScreen(const vec4_t& colour);
+		void ClearScreen(const reColour& colour);
 
 		void SetUniformsGlobals();
 		void SetUniformsCamera(const reCamera& camera);
@@ -58,10 +62,9 @@ namespace reGraphics
 		SDL_Window* m_window = nullptr;
 
 		bool m_clearScreenColourEnabled = true;
-		vec4_t m_clearScreenColour{ 0.f, 0.f, 0.f, 1.f };
+		reColour m_clearScreenColour{ 0, 0, 0, 255 };
 		reLightingSettings m_lightingSettings;
 
 		umap<reGuid<reMaterial>, std::vector<reRenderedMesh>> m_renderList;
-		
 	};
 }

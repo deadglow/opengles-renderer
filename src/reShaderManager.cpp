@@ -10,6 +10,8 @@
 const char* SHADER_PATH = "assets\\shaders\\";
 const char* DEFAULT_VS = "default";
 const char* DEFAULT_FS = "default";
+const char* LINES_VS = "lines";
+const char* LINES_FS = "lines";
 
 using namespace reGraphics;
 //#define LOG_INVALID_UNIFORM
@@ -25,6 +27,7 @@ reShaderProgram::reShaderProgram(GLuint program, const char* name, const char* v
 reShaderManager::reShaderManager()
 {
 	LoadShaderProgramFromFiles("default", DEFAULT_VS, DEFAULT_FS);
+	LoadShaderProgramFromFiles("lines", LINES_VS, LINES_FS);
 }
 
 bool reShaderManager::IsShaderLoaded(const char* name) const

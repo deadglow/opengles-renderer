@@ -2,11 +2,13 @@
 #include "SDL/SDL.h"
 
 const char* DEFAULT_SHADER = "default";
+const char* LINES_SHADER = "lines";
 
 using namespace reGraphics;
 
 reMaterialManager::reMaterialManager()
 	: m_defaultMaterial(reGuid<reMaterial>(0), DEFAULT_SHADER)
+	, m_linesMaterial(reGuid<reMaterial>(1), LINES_SHADER)
 {
 }
 
@@ -26,6 +28,11 @@ const reMaterial* reMaterialManager::GetMaterial(const reGuid<reMaterial> guid) 
 const reMaterial& reGraphics::reMaterialManager::GetDefaultMaterial() const
 {
 	return m_defaultMaterial;
+}
+
+const reMaterial& reGraphics::reMaterialManager::GetLinesMaterial() const
+{
+	return m_linesMaterial;
 }
 
 reMaterial& reGraphics::reMaterialManager::CreateMaterial(const char* shader)

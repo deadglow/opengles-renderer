@@ -35,10 +35,10 @@ void TempModelStuff(reFlyCam& camera)
 	reTime* time = reEngine::GetTime();
 
 	reTransform t = reTransform::Identity();
-	rotor3_t r = rot3_plane_angle(bivector3(1.f, 0.f, 0.f), (float)time->time * 1.f);
+	rotor3_t r = rot3_plane_angle(bivector3(1.f, 0.f, 0.f), (float)time->now * 1.f);
 	t.Rotate(r);
 
-	renderer->AddModelToRender(reModelInst(modelGuid), t.ConstructMatrix());
+	//renderer->AddModelToRender(reModelInst(modelGuid), t.ConstructMatrix());
 }
 
 void reTestListener::OnUpdate()

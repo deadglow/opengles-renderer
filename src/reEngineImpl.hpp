@@ -6,6 +6,8 @@
 #include "reMaterialManager.hpp"
 #include "reTime.hpp"
 #include "reInput.hpp"
+#include "rePhysics.hpp"
+#include "reDebugRender.hpp"
 
 class reEngine::Impl
 {
@@ -16,11 +18,15 @@ public:
 	{
 	}
 
+	reTime m_time;
+	reInput m_input;
+
 	reGraphics::reShaderManager m_shaderManager;
 	reGraphics::reModelManager m_modelManager;
 	reGraphics::reMaterialManager m_materialManager;
 	reGraphics::reRenderer m_renderer;
 
-	reTime m_time;
-	reInput m_input;
+	rePhysics::rePhysicsSystem m_physicsSystem;
+
+	reDebugRender m_debugRender;
 };

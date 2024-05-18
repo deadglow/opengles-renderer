@@ -181,7 +181,7 @@ void reModelManager::GPUUnload(const reGuid<reModel> guid)
 	for (reMesh& mesh : model->m_meshes)
 	{
 		glBindVertexArray(mesh.m_VAO);
-		glDeleteBuffers(1, &mesh.m_VAO);
+		glDeleteBuffers(1, &mesh.m_EBO);
 		glDeleteBuffers(reVertexAttribs::COUNT, mesh.m_VBOs);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

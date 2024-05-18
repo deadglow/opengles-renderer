@@ -18,6 +18,7 @@ namespace reGraphics
 		bool MaterialExists(const reGuid<reMaterial> guid) const;
 		const reMaterial* GetMaterial(const reGuid<reMaterial> guid) const;
 		const reMaterial& GetDefaultMaterial() const;
+		const reMaterial& GetLinesMaterial() const;
 
 		reMaterial& CreateMaterial(const char* shader);
 
@@ -26,5 +27,6 @@ namespace reGraphics
 	private:
 		umap<reGuid<reMaterial>, reMaterial> m_materials;
 		reMaterial m_defaultMaterial;
+		reMaterial m_linesMaterial;
 	};
 }

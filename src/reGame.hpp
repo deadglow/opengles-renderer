@@ -22,15 +22,17 @@ class reGame
 {
 public:
 	double m_tickrate = 1.0 / 50.0;
-	
+
 	reGame() = default;
-	~reGame();
+	~reGame() = default;
 
 	int Init();
+	void Dispose();
 	int Run();
 
 	void DoInput();
 	void Update();
+	void PhysicsUpdate();
 	void Render();
 
 	void RegisterBaseListeners();
@@ -46,6 +48,7 @@ private:
 	SDL_WindowHandle m_window = nullptr;
 	reEngine::Impl* m_engineInstance = nullptr;
 	bool m_running = false;
+	bool m_updateEnabled = true;
 
 	umap<reGuid<reIListener>, reIListener*> m_listeners;
 

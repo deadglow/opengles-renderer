@@ -40,9 +40,11 @@
 			"type": "cppbuild",
 			"command": "mingw32-make.exe",
 			"args": [
+				"configuration=debug",
+				"opengles-renderer",
 			],
 			"options": {
-				"cwd": "${workspaceFolder}\\build\\opengles-renderer"
+				"cwd": "${workspaceFolder}\\build"
 			},
 			"problemMatcher": [
 				"$gcc"

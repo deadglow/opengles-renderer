@@ -10,7 +10,9 @@
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE",
-				"WIN32"
+				"WIN32",
+				"ENABLE_DEBUG_RENDER",
+				"JPH_DEBUG_RENDERER"
             ],
             "windowsSdkVersion": "10.0.19041.0",
             "compilerPath": "C:\\msys64\\mingw64\\bin\\g++.exe",

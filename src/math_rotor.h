@@ -38,12 +38,22 @@ static inline bivector3_t bv3_wedge(const vec3_t u, const vec3_t v) {
 }
 
 // -------------------------------------------------
+// supplementary quat
+//
+typedef struct { float i, j, k, s; } quat_t;
+static inline quat_t quat(float i, float j, float k, float s) { return (quat_t) { i, j, k, s }; }
+static inline quat_t quat_identity() { return (quat_t) { 1.f, 0.f, 0.f, 0.f }; }
+
+// -------------------------------------------------
 // rotor 3d
 //
 
 typedef struct { float s, xy, yz, zx; } rotor3_t;
 static inline rotor3_t rotor3(float s, float xy, float xz, float zy) { return (rotor3_t) { s, xy, xz, zy }; }
 static inline rotor3_t rot3_identity() { return (rotor3_t) { 1.f, 0.f, 0.f, 0.f }; }
+
+static inline quat_t rot3_toquat(rotor3_t r) { return (quat_t) { -r.yz, -r.zx, -r.xy, r.s }; }
+static inline rotor3_t rot3_fromquat(quat_t q) { return (rotor3_t) { q.s, -q.k, -q.i, -q.j }; }
 
 static inline rotor3_t rot3_reverse(const rotor3_t r) {
 	return rotor3(r.s, -r.xy, -r.yz, -r.zx);
@@ -78,6 +88,7 @@ rotor3_t rot3_look_rotation_nochecks(const vec3_t forward, const vec3_t up);
 vec3_t rot3_transform(const rotor3_t r, const vec3_t v);
 mat4_t rot3_matrix(const rotor3_t r);
 mat4_t m4_trs(const vec3_t t, const rotor3_t r, const float s);
+
 
 #endif // MATH_ROTOR_HEADER
 

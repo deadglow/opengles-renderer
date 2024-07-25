@@ -7,24 +7,26 @@
 // - - - - - - - - - - - - - - - - - - - - - - - -
 namespace rePhysics
 {
-	namespace reCollisionLayer
+
+	enum class CollisionLayer : uint16_t
 	{
-		enum Enum : uint16_t
-		{
-			LAYER_STATIC,
-			LAYER_DYNAMIC,
-			LAYER_COUNT,
-		};
+		LAYER_STATIC,
+		LAYER_DYNAMIC,
+		LAYER_COUNT,
 	};
 
-	namespace reCollisionLayerBroad
+	enum class CollisionLayerBroad : uint16_t
 	{
-		enum Enum : uint16_t
-		{
-			LAYER_STATIC,
-			LAYER_DYNAMIC,
-			LAYER_COUNT,
-		};
+		LAYER_STATIC,
+		LAYER_DYNAMIC,
+		LAYER_COUNT,
+	};
+
+	enum class ShapeType : uint16_t
+	{
+		Sphere,
+		Box,
+		Plane,
 	};
 };
 

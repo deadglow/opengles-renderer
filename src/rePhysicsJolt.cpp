@@ -107,12 +107,12 @@ void rePhysicsJolt::Init()
 		ShapeSettings::ShapeResult floorShapeResult = floorShapeSettings.Create();
 		ShapeRefC floorShape = floorShapeResult.Get();
 		// create body settings
-		BodyCreationSettings floorSettings(floorShape, RVec3(0.0_r, -1.0_r, 0.0_r), Quat::sIdentity(), EMotionType::Static, reCollisionLayer::LAYER_STATIC);
+		BodyCreationSettings floorSettings(floorShape, RVec3(0.0_r, -1.0_r, 0.0_r), Quat::sIdentity(), EMotionType::Static, (ObjectLayer)CollisionLayer::LAYER_STATIC);
 		Body* floor = bodyInterface.CreateBody(floorSettings);
 		bodyInterface.AddBody(floor->GetID(), EActivation::DontActivate);
 
 		// create a dynamic body to bounce on the floor
-		BodyCreationSettings sphereSettings(new SphereShape(1.5f), RVec3(10.0_r, 2.0_r, 0.0_r), Quat::sIdentity(), EMotionType::Dynamic, reCollisionLayer::LAYER_DYNAMIC);
+		BodyCreationSettings sphereSettings(new SphereShape(1.5f), RVec3(10.0_r, 2.0_r, 0.0_r), Quat::sIdentity(), EMotionType::Dynamic, (ObjectLayer)CollisionLayer::LAYER_DYNAMIC);
 		BodyID sphereId = bodyInterface.CreateAndAddBody(sphereSettings, EActivation::Activate);
 
 		bodyInterface.SetLinearVelocity(sphereId, RVec3(-50.0_r, 0.0_r, 0.0_r));
@@ -134,7 +134,7 @@ void rePhysicsJolt::Init()
 		for (int i = 0; i < 6; ++i)
 		{
 			vec3_t v = pos[i];
-			BodyCreationSettings boxSettings(boxShape, RVec3(v.x, v.y, v.z), Quat::sIdentity(), EMotionType::Dynamic, reCollisionLayer::LAYER_DYNAMIC);
+			BodyCreationSettings boxSettings(boxShape, RVec3(v.x, v.y, v.z), Quat::sIdentity(), EMotionType::Dynamic, (ObjectLayer)CollisionLayer::LAYER_DYNAMIC);
 			BodyID boxId = bodyInterface.CreateAndAddBody(boxSettings, EActivation::Activate);
 		}
 	}

@@ -24,11 +24,11 @@ namespace rePhysics
 	public:
 		virtual bool ShouldCollide(JPH::ObjectLayer a, JPH::ObjectLayer b) const override
 		{
-			switch (reCollisionLayer::Enum(a))
+			switch (CollisionLayer(a))
 			{
-			case reCollisionLayer::LAYER_STATIC:
-				return reCollisionLayer::Enum(b) == reCollisionLayer::LAYER_DYNAMIC;
-			case reCollisionLayer::LAYER_DYNAMIC:
+			case CollisionLayer::LAYER_STATIC:
+				return CollisionLayer(b) == CollisionLayer::LAYER_DYNAMIC;
+			case CollisionLayer::LAYER_DYNAMIC:
 				return true;
 
 			default:
@@ -43,28 +43,28 @@ namespace rePhysics
 	public:
 		BPLayerInterfaceImpl()
 		{
-			m_objectToBroadPhase[reCollisionLayer::LAYER_STATIC] = JPH::BroadPhaseLayer(reCollisionLayerBroad::LAYER_STATIC);
-			m_objectToBroadPhase[reCollisionLayer::LAYER_DYNAMIC] = JPH::BroadPhaseLayer(reCollisionLayerBroad::LAYER_DYNAMIC);
+			m_objectToBroadPhase[(uint16_t)CollisionLayer::LAYER_STATIC] = JPH::BroadPhaseLayer((uint8_t)CollisionLayerBroad::LAYER_STATIC);
+			m_objectToBroadPhase[(uint16_t)CollisionLayer::LAYER_DYNAMIC] = JPH::BroadPhaseLayer((uint8_t)CollisionLayerBroad::LAYER_DYNAMIC);
 		}
 
 		virtual uint32_t GetNumBroadPhaseLayers() const override
 		{
-			return reCollisionLayerBroad::LAYER_COUNT;
+			return (uint32_t)CollisionLayerBroad::LAYER_COUNT;
 		}
 
 		virtual JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer layer) const override
 		{
-			JPH_ASSERT(layer < reCollisionLayer::LAYER_COUNT);
+			JPH_ASSERT(layer < (uint16_t)CollisionLayer::LAYER_COUNT);
 			return m_objectToBroadPhase[layer];
 		}
 
 #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
 		virtual const char* GetBroadPhaseLayerName(JPH::BroadPhaseLayer layer) const override
 		{
-			switch ((JPH::BroadPhaseLayer::Type)layer)
+			switch ((CollisionLayerBroad)(JPH::BroadPhaseLayer::Type)layer)
 			{
-			case reCollisionLayerBroad::LAYER_STATIC: return "LAYER_STATIC";
-			case reCollisionLayerBroad::LAYER_DYNAMIC: return "LAYER_DYNAMIC";
+			case CollisionLayerBroad::LAYER_STATIC: return "LAYER_STATIC";
+			case CollisionLayerBroad::LAYER_DYNAMIC: return "LAYER_DYNAMIC";
 
 			default:
 				JPH_ASSERT(false);
@@ -74,7 +74,7 @@ namespace rePhysics
 #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
 
 	private:
-		JPH::BroadPhaseLayer m_objectToBroadPhase[reCollisionLayer::LAYER_COUNT];
+		JPH::BroadPhaseLayer m_objectToBroadPhase[(uint16_t)CollisionLayer::LAYER_COUNT];
 	};
 
 	//  ObjectVsBroadPhaseLayerFilter //
@@ -83,13 +83,13 @@ namespace rePhysics
 	public:
 		virtual bool ShouldCollide(JPH::ObjectLayer obj, JPH::BroadPhaseLayer broad) const override
 		{
-			const auto reObj = (reCollisionLayer::Enum)obj;
-			const auto reBroad = (reCollisionLayerBroad::Enum)(JPH::BroadPhaseLayer::Type)broad;
+			const auto reObj = CollisionLayer(obj);
+			const auto reBroad = (CollisionLayerBroad)(JPH::BroadPhaseLayer::Type)broad;
 			switch (reObj)
 			{
-			case reCollisionLayer::LAYER_STATIC:
-				return reBroad == reCollisionLayerBroad::LAYER_DYNAMIC;
-			case reCollisionLayer::LAYER_DYNAMIC:
+			case CollisionLayer::LAYER_STATIC:
+				return reBroad == CollisionLayerBroad::LAYER_DYNAMIC;
+			case CollisionLayer::LAYER_DYNAMIC:
 				return true;
 			default:
 				JPH_ASSERT(false);

@@ -2,7 +2,7 @@
 
 #include "SDL/SDL.h"
 
-#define PHYSICS_USE_JOLT
+#include "rePhysicsFallback.hpp"
 
 #if defined(PHYSICS_USE_JOLT)
 	#include "rePhysicsJolt.hpp"
@@ -15,9 +15,10 @@ void rePhysicsSystem::Init()
 #if defined(PHYSICS_USE_JOLT)
 	m_impl = new rePhysicsJolt();
 #else
+	m_impl = new rePhysicsFallback();
+#endif
 	// we need a physics implementation
 	SDL_assert(m_impl != nullptr);
-#endif
 
 	m_impl->Init();
 }

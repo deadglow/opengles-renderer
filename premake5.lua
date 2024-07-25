@@ -25,7 +25,7 @@ newoption {
 		{ "none", "No physics engine..."},
 		{ "jolt", "Jolt physics"},
 	},
-	default = "jolt",
+	default = "none",
 }
 
 local physTable = {

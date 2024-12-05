@@ -71,6 +71,7 @@
 		"stop_token": "cpp",
 		"thread": "cpp",
 		"forward_list": "cpp",
-		"valarray": "cpp"
+		"valarray": "cpp",
+		"unordered_set": "cpp"
 	}
 }

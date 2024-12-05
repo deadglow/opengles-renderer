@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-#include "reGame.hpp"
+#include "Game.hpp"
 
 int main(int argc, char* argv[])
 {
-	reGame game;
+	Enoki::Game game;
 
 	int result = game.Init();
 	if (result == 0)

@@ -1593,7 +1593,7 @@ JSON_HEDLEY_DIAGNOSTIC_POP
     JSON_HEDLEY_MCST_LCC_VERSION_CHECK(1,25,10)
     #define JSON_HEDLEY_MALLOC __attribute__((__malloc__))
 #elif JSON_HEDLEY_SUNPRO_VERSION_CHECK(5,10,0)
-    #define JSON_HEDLEY_MALLOC _Pragma("returns_new_memory")
+    #define JSON_HEDLEY_MALLOC _Pragma("turns_new_memory")
 #elif \
     JSON_HEDLEY_MSVC_VERSION_CHECK(14,0,0) || \
     JSON_HEDLEY_INTEL_CL_VERSION_CHECK(2021,1,0)
@@ -2870,7 +2870,7 @@ json.exception.parse_error.101 | parse error at 2: unexpected end of input; expe
 json.exception.parse_error.102 | parse error at 14: missing or wrong low surrogate | JSON uses the `\uxxxx` format to describe Unicode characters. Code points above above 0xFFFF are split into two `\uxxxx` entries ("surrogate pairs"). This error indicates that the surrogate pair is incomplete or contains an invalid code point.
 json.exception.parse_error.103 | parse error: code points above 0x10FFFF are invalid | Unicode supports code points up to 0x10FFFF. Code points above 0x10FFFF are invalid.
 json.exception.parse_error.104 | parse error: JSON patch must be an array of objects | [RFC 6902](https://tools.ietf.org/html/rfc6902) requires a JSON Patch document to be a JSON document that represents an array of objects.
-json.exception.parse_error.105 | parse error: operation must have string member 'op' | An operation of a JSON Patch document must contain exactly one "op" member, whose value indicates the operation to perform. Its value must be one of "add", "remove", "replace", "move", "copy", or "test"; other values are errors.
+json.exception.parse_error.105 | parse error: operation must have string member 'op' | An operation of a JSON Patch document must contain exactly one "op" member, whose value indicates the operation to perform. Its value must be one of "add", "move", "place", "move", "copy", or "test"; other values are errors.
 json.exception.parse_error.106 | parse error: array index '01' must not begin with '0' | An array index in a JSON Pointer ([RFC 6901](https://tools.ietf.org/html/rfc6901)) may be `0` or any number without a leading `0`.
 json.exception.parse_error.107 | parse error: JSON pointer must be empty or begin with '/' - was: 'foo' | A JSON Pointer must be a Unicode string containing a sequence of zero or more reference tokens, each prefixed by a `/` character.
 json.exception.parse_error.108 | parse error: escape character '~' must be followed with '0' or '1' | In a JSON Pointer, only `~0` and `~1` are valid escape sequences.
@@ -25920,7 +25920,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     resolved successfully in the current JSON value; example: `"key baz not
     found"`
 
-    @throw out_of_range.405 if JSON pointer has no parent ("add", "remove",
+    @throw out_of_range.405 if JSON pointer has no parent ("add", "move",
     "move")
 
     @throw other_error.501 if "test" operation was unsuccessful
@@ -25953,11 +25953,11 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             {
                 return patch_operations::add;
             }
-            if (op == "remove")
+            if (op == "move")
             {
                 return patch_operations::remove;
             }
-            if (op == "replace")
+            if (op == "place")
             {
                 return patch_operations::replace;
             }
@@ -26044,7 +26044,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             }
         };
 
-        // wrapper for "remove" operation; remove value at ptr
+        // wrapper for "move" operation; remove value at ptr
         const auto operation_remove = [this, &result](json_pointer & ptr)
         {
             // get reference to parent of JSON pointer ptr
@@ -26139,7 +26139,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 case patch_operations::replace:
                 {
                     // the "path" location must exist - use at()
-                    result.at(ptr) = get_value("replace", "value", false);
+                    result.at(ptr) = get_value("place", "value", false);
                     break;
                 }
 
@@ -26152,7 +26152,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                     basic_json v = result.at(from_ptr);
 
                     // The move operation is functionally identical to a
-                    // "remove" operation on the "from" location, followed
+                    // "move" operation on the "from" location, followed
                     // immediately by an "add" operation at the target
                     // location with the value that was just removed.
                     operation_remove(from_ptr);
@@ -26201,7 +26201,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 case patch_operations::invalid:
                 default:
                 {
-                    // op must be "add", "remove", "replace", "move", "copy", or
+                    // op must be "add", "move", "place", "move", "copy", or
                     // "test"
                     JSON_THROW(parse_error::create(105, 0, "operation value '" + op + "' is invalid", val));
                 }
@@ -26262,7 +26262,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
             // different types: replace value
             result.push_back(
             {
-                {"op", "replace"}, {"path", path}, {"value", target}
+                {"op", "place"}, {"path", path}, {"value", target}
             });
             return result;
         }
@@ -26292,7 +26292,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                     // indices
                     result.insert(result.begin() + end_index, object(
                     {
-                        {"op", "remove"},
+                        {"op", "move"},
                         {"path", path + "/" + std::to_string(i)}
                     }));
                     ++i;
@@ -26332,7 +26332,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                         // found a key that is not in o -> remove it
                         result.push_back(object(
                         {
-                            {"op", "remove"}, {"path", path_key}
+                            {"op", "move"}, {"path", path_key}
                         }));
                     }
                 }
@@ -26368,7 +26368,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                 // both primitive type: replace value
                 result.push_back(
                 {
-                    {"op", "replace"}, {"path", path}, {"value", target}
+                    {"op", "place"}, {"path", path}, {"value", target}
                 });
                 break;
             }

@@ -1,4 +1,4 @@
-# OpenGL ES Renderer
+# Enoki - OpenGL ES Engine
 
 Little test project I'm working on to try and get a renderer working on some homebrew things.\
 \

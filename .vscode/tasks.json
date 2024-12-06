@@ -36,7 +36,7 @@
 		},
 		// make
 		{
-			"label": "make",
+			"label": "mingw32-make",
 			"type": "cppbuild",
 			"command": "mingw32-make.exe",
 			"args": [
@@ -56,6 +56,28 @@
 				"premake-generate"
 			]
 		},
+		{
+			"label": "make",
+			"type": "cppbuild",
+			"command": "make",
+			"args": [
+			],
+			"options": {
+				"cwd": "${workspaceFolder}\\build\\opengles-renderer"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "Run generated files.",
+			"dependsOn":[
+				"premake-generate"
+			]
+		},
+
 	],
 	"version": "2.0.0"
 }
